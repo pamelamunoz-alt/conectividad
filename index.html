@@ -2,109 +2,99 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Formulario de Conectividad - PedidosYa</title>
 
-  <!-- Fuente Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --rosa: #FA0050;
-      --blanco: #ffffff;
-      --gris: #f6f6f6;
-      --texto: #333;
-    }
-
     body {
       font-family: 'Poppins', sans-serif;
-      background: var(--rosa);
+      background: #FA0050;
       margin: 0;
-      padding: 20px;
+      padding: 0;
     }
 
-    /* LOGO */
-    .logo-container {
+    .logo {
       text-align: center;
-      margin-top: 15px;
-      margin-bottom: 10px;
+      margin-top: 25px;
     }
 
-    .logo-container img {
+    .logo img {
       width: 150px;
-      height: auto;
     }
 
-    /* TÍTULO */
     h2 {
       text-align: center;
-      color: var(--blanco);
-      margin-bottom: 20px;
+      color: white;
+      margin-top: 10px;
+      margin-bottom: 25px;
       font-weight: 600;
-      font-size: 24px;
+      font-size: 26px;
     }
 
-    /* FORM CONTAINER */
     .container {
-      background: var(--blanco);
-      max-width: 520px;
-      margin: auto;
+      background: white;
+      max-width: 550px;
+      margin: 20px auto;
       padding: 30px;
-      border-radius: 14px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      border-radius: 16px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
 
     label {
-      font-weight: 500;
-      margin-top: 12px;
+      font-weight: 600;
       display: block;
-      font-size: 14px;
-      color: var(--texto);
+      margin-bottom: 6px;
+      font-size: 15px;
     }
 
-    input, select {
+    input, select, textarea {
       width: 100%;
-      padding: 12px;
-      margin-top: 6px;
+      padding: 12px 14px !important;   /* ← MISMO tamaño */
       margin-bottom: 18px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      background: #fafafa;
       font-size: 15px;
       font-family: 'Poppins', sans-serif;
-      background: #fafafa;
+      box-sizing: border-box;
+    }
+
+    /* Corrige tamaño del select */
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 18px;
     }
 
     textarea {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 15px;
-      font-family: 'Poppins', sans-serif;
+      height: 120px;
       resize: vertical;
-      min-height: 100px;
-      background: #fafafa;
     }
 
     button {
       width: 100%;
-      background: var(--rosa);
+      background: #FA0050;
       border: none;
       padding: 14px;
-      color: var(--blanco);
-      font-size: 17px;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
       margin-top: 10px;
-      font-weight: 600;
     }
 
     button:hover {
       background: #d80045;
     }
 
-    /* AUTOCOMPLETE */
+    /* Autocomplete */
     .autocomplete-wrapper {
       position: relative;
       width: 100%;
@@ -117,10 +107,10 @@
       right: 0;
       background: white;
       border: 1px solid #ddd;
-      border-radius: 6px;
-      max-height: 150px;
+      border-radius: 8px;
+      max-height: 160px;
       overflow-y: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       z-index: 9999;
     }
 
@@ -136,34 +126,17 @@
     #autocomplete-list div:hover {
       background: #ffe3ef;
     }
-
-    /* RESPONSIVE */
-    @media (max-width: 480px) {
-      .container {
-        padding: 22px;
-      }
-      h2 {
-        font-size: 22px;
-      }
-
-      .logo-container img {
-        width: 130px;
-      }
-    }
   </style>
 </head>
 
 <body>
 
-<!-- LOGO -->
-<div class="logo-container">
+<div class="logo">
   <img src="logo-blanco.png" alt="PedidosYa">
 </div>
 
-<!-- TÍTULO -->
 <h2>Formulario de Conectividad</h2>
 
-<!-- FORMULARIO -->
 <div class="container">
 
   <label>Nombre del local *</label>
@@ -189,7 +162,7 @@
   </select>
 
   <label>Comentario adicional (opcional)</label>
-  <textarea id="comments" placeholder="Escribe un comentario adicional..."></textarea>
+  <textarea id="comment" placeholder="Escribe un comentario adicional..."></textarea>
 
   <button onclick="sendForm()">Enviar</button>
 
@@ -200,10 +173,12 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzhn8R1v0Uq20_bCet9
 
 let partners = [];
 
+// Cargar lista de partners
 fetch(`${SCRIPT_URL}?action=getPartners`)
   .then(res => res.json())
-  .then(data => { partners = data.partners; });
+  .then(data => partners = data.partners);
 
+// Autocomplete
 const input = document.getElementById("partnerInput");
 const list = document.getElementById("autocomplete-list");
 
@@ -224,44 +199,45 @@ input.addEventListener("input", function () {
   });
 });
 
+// Validaciones + envío
 function sendForm() {
-  const partner = input.value.trim();
-  const contactName = document.getElementById("contactName").value.trim();
-  const phone = document.getElementById("phone").value.trim();
+  const partner = input.value;
+  const contactName = document.getElementById("contactName").value;
+  const phone = document.getElementById("phone").value;
   const reason = document.getElementById("reason").value;
-  const comments = document.getElementById("comments").value;
+  const comment = document.getElementById("comment").value;
 
-  if (!partner || !contactName || !reason) {
+  if (!partner || !contactName || !phone || !reason) {
     alert("Por favor completa todos los campos obligatorios.");
     return;
   }
 
   if (!/^\d{8}$/.test(phone)) {
-    alert("El número de teléfono debe tener exactamente 8 dígitos numéricos.");
+    alert("El número de teléfono debe tener exactamente 8 dígitos.");
     return;
   }
 
   const payload = {
     partner_name: partner,
     contact_name: contactName,
-    phone,
-    reason,
-    comments
+    phone: phone,
+    reason: reason,
+    comment: comment
   };
 
   fetch(SCRIPT_URL, {
     method: "POST",
     body: JSON.stringify(payload)
   })
-  .then(res => res.json())
-  .then(() => {
-    alert("¡Gracias! Tu información ha sido enviada correctamente!");
-    location.reload();
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Ocurrió un error al enviar el formulario.");
-  });
+    .then(res => res.json())
+    .then(() => {
+      alert("¡Gracias! Tu información ha sido enviada correctamente.");
+      location.reload();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Ocurrió un error al enviar el formulario.");
+    });
 }
 </script>
 
