@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulario de Conectectividad - PedidosYa</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f6f6;
+      padding: 25px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #FA0050;
+      margin-bottom: 25px;
+    }
+
+    .container {
+      background: white;
+      max-width: 520px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 18px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      background: #FA0050;
+      border: none;
+      padding: 12px;
+      color: white;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #d80045;
+    }
+
+    /* AUTOCOMPLETE */
+    #autocomplete-list {
+      border: 1px solid #ccc;
+      background: white;
+      position: absolute;
+      width: calc(100% - 22px);
+      z-index: 9999;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    #autocomplete-list div {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #autocomplete-list div:hover {
+      background: #ffe0eb;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Formulario de Conectividad</h2>
+
+<div class="container">
+
+  <label>Nombre del local</label>
+  <input type="text" id="partnerInput" placeholder="Escribe el nombre del local...">
+  <div id="autocomplete-list"></div>
+
+  <label>Tu nombre</label>
+  <input type="text" id="contactName" placeholder="Escribe tu nombre">
+
+  <label>Teléfono</label>
+  <input type="text" id="phone" placeholder="Escribe tu número de contacto">
+
+  <label>Motivo de desconexión</label>
+  <select id="reason">
+    <option value="">Selecciona...</option>
+    <option value="Desea darse de baja">Deseo darme de baja de la plataforma</option>
+    <option value="Problemas con POS">Tengo problemas con el POS</option>
+    <option value="Problemas de internet">Tengo problemas con mi internet</option>
+    <option value="Sin acceso al local">No tengo acceso al local</option>
+    <option value="Otro">Otro motivo</option>
+  </select>
+
+  <button onclick="sendForm()">Enviar</button>
+
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjTgSZSVshyxbD4mSQ8DH0U7dWJTz0IM-9QS-cyS_LMYh0rkcA7kCEkeczPq47kMefsA/exec";
+
+// ==================================
+// 1. Cargar partners desde Apps Script
+// ==================================
+let partners = [];
+
+fetch(`${SCRIPT_URL}?action=getPartners`)
+  .then(res => res.json())
+  .then(data => {
+    partners = data.partners;
+  });
+
+// ==================================
+// 2. Autocomplete
+// ==================================
+const input = document.getElementById("partnerInput");
+const list = document.getElementById("autocomplete-list");
+
+input.addEventListener("input", function() {
+  const val = this.value.toLowerCase();
+  list.innerHTML = "";
+
+  if (!val || val.length < 2) return;
+
+  const filtered = partners.filter(p => p.toLowerCase().includes(val));
+
+  filtered.slice(0, 12).forEach(p => {
+    const div = document.createElement("div");
+    div.textContent = p;
+    div.onclick = () => {
+      input.value = p;
+      list.innerHTML = "";
+    };
+    list.appendChild(div);
+  });
+});
+
+// ==================================
+// 3. Enviar formulario
+// ==================================
+function sendForm() {
+  const payload = {
+    partner_name: document.getElementById("partnerInput").value,
+    contact_name: document.getElementById("contactName").value,
+    phone: document.getElementById("phone").value,
+    reason: document.getElementById("reason").value
+  };
+
+  if (!payload.partner_name || !payload.reason || !payload.contact_name) {
+    alert("Por favor completa todos los campos obligatorios.");
+    return;
+  }
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(r => {
+    alert("¡Gracias! Tu información ha sido enviada correctamente.");
+    location.reload();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Ocurrió un error al enviar el formulario.");
+  });
+}
+</script>
+
+</body>
+</html>
