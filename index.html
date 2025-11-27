@@ -9,7 +9,7 @@
 
   <style>
     body {
-      font-family: "Poppins", sans-serif !important;
+      font-family: "Poppins", sans-serif;
       background: #FA0050;
       margin: 0;
       padding: 0;
@@ -29,58 +29,51 @@
       margin: 20px 0 25px 0;
       font-weight: 600;
       font-size: 26px;
-      font-family: "Poppins", sans-serif !important;
     }
 
-    /* CONTENEDOR */
     .container {
       background: white;
       width: 90%;
       max-width: 580px;
       margin-bottom: 50px;
-      padding: 35px 45px; 
+      padding: 35px 40px;
       border-radius: 14px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
       box-sizing: border-box;
-      font-family: "Poppins", sans-serif !important;
     }
 
     label {
       font-weight: 600;
-      margin-bottom: 6px;
-      margin-top: 10px;
       display: block;
-      font-family: "Poppins", sans-serif !important;
+      margin-bottom: 6px;
+      margin-top: 12px;
     }
 
     input, select, textarea {
       width: 100%;
-      padding: 12px 14px !important;
+      padding: 12px 14px;
       border-radius: 8px;
       border: 1.5px solid #ddd;
       background: #fafafa;
       font-size: 15px;
-      margin-bottom: 8px;
+      font-family: "Poppins", sans-serif;
+      margin-bottom: 6px;
       box-sizing: border-box;
-      font-family: "Poppins", sans-serif !important;
     }
 
     textarea {
-      height: 90px; /* MÁS PEQUEÑO */
+      height: 95px; 
       resize: vertical;
     }
 
     select {
       appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
       background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
       background-repeat: no-repeat;
       background-position: right 12px center;
       background-size: 20px;
     }
 
-    /* AUTOCOMPLETE */
     .autocomplete-wrapper {
       position: relative;
       width: 100%;
@@ -104,10 +97,10 @@
       padding: 10px;
       cursor: pointer;
       font-size: 14px;
-      font-family: "Poppins", sans-serif !important;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-family: "Poppins", sans-serif;
     }
 
     #autocomplete-list div:hover {
@@ -118,21 +111,21 @@
       width: 100%;
       height: 1px;
       background: #eaeaea;
-      margin: 18px 0;
+      margin: 20px 0;
     }
 
     .input-error {
-      border: 1.8px solid #FA0050 !important;
+      border: 2px solid #FA0050 !important;
       background: #ffe6ee !important;
     }
 
     .error-text {
       color: #FA0050;
       font-size: 13px;
-      margin-top: -5px;
-      margin-bottom: 10px;
+      margin-top: -2px;
+      margin-bottom: 8px;
       display: none;
-      font-family: "Poppins", sans-serif !important;
+      font-family: "Poppins", sans-serif;
     }
 
     button {
@@ -144,10 +137,10 @@
       padding: 14px;
       border-radius: 8px;
       cursor: pointer;
-      margin-top: 20px;
-      transition: 0.15s;
+      margin-top: 22px;
+      transition: 0.2s;
       font-weight: 600;
-      font-family: "Poppins", sans-serif !important;
+      font-family: "Poppins", sans-serif;
     }
 
     button:hover {
@@ -158,7 +151,6 @@
 
 <body>
 
-  <!-- LOGO -->
   <img src="logo-blanco.png" class="logo">
 
   <h2>Formulario de Conectividad</h2>
@@ -170,17 +162,17 @@
       <input type="text" id="partnerInput" placeholder="Escribe el nombre del local...">
       <div id="autocomplete-list"></div>
     </div>
-    <div class="error-text" id="error-partner"></div>
+    <div class="error-text" id="error-partner">Agrega el nombre del local</div>
 
     <div class="divider"></div>
 
     <label>Tu nombre *</label>
     <input type="text" id="contactName" placeholder="Escribe tu nombre">
-    <div class="error-text" id="error-name"></div>
+    <div class="error-text" id="error-name">Agrega tu nombre</div>
 
     <label>Teléfono *</label>
     <input type="text" id="phone" maxlength="8" placeholder="Escribe tu número de contacto">
-    <div class="error-text" id="error-phone"></div>
+    <div class="error-text" id="error-phone">Debe tener 8 dígitos numéricos</div>
 
     <label>Motivo de desconexión *</label>
     <select id="reason">
@@ -191,7 +183,7 @@
       <option value="Sin acceso al local">No tengo acceso al local</option>
       <option value="Otro">Otro motivo</option>
     </select>
-    <div class="error-text" id="error-reason"></div>
+    <div class="error-text" id="error-reason">Selecciona un motivo</div>
 
     <label>Comentario adicional (opcional)</label>
     <textarea id="comment" placeholder="Escribe un comentario adicional..."></textarea>
@@ -200,77 +192,89 @@
   </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxverSeeI9Voa5uLHeCsBx3ggAcdQbUNgsoJvmI49TSlPWwUC7HyU0XBoUp6dXjn2-VTg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbtORCprcx4JcRhN0rKxcCBvAtnREj2CpdzWvwZ4ilBo6lf0PR9GOAOpWJMkAJHLq_uQ/exec";
 
-// LISTA DE PARTNERS
+/* CARGA DE PARTNERS */
 let partners = [];
 
 fetch(`${SCRIPT_URL}?action=getPartners`)
   .then(res => res.json())
-  .then(data => { partners = data.partners; });
+  .then(data => partners = data.partners);
 
-// AUTOCOMPLETE
-const input = document.getElementById("partnerInput");
+const partnerInput = document.getElementById("partnerInput");
 const list = document.getElementById("autocomplete-list");
 
-input.addEventListener("input", () => {
-  const val = input.value.toLowerCase();
+partnerInput.addEventListener("input", () => {
+  const val = partnerInput.value.toLowerCase();
   list.innerHTML = "";
 
   if (!val || val.length < 2) return;
 
-  const filtered = partners.filter(p => p.toLowerCase().includes(val));
-
-  filtered.slice(0, 12).forEach(p => {
-    const div = document.createElement("div");
-    div.textContent = p;
-    div.onclick = () => {
-      input.value = p;
-      list.innerHTML = "";
-    };
-    list.appendChild(div);
-  });
+  partners
+    .filter(p => p.toLowerCase().includes(val))
+    .slice(0, 12)
+    .forEach(p => {
+      const div = document.createElement("div");
+      div.textContent = p;
+      div.onclick = () => {
+        partnerInput.value = p;
+        clearError("partnerInput", "error-partner");
+        list.innerHTML = "";
+      };
+      list.appendChild(div);
+    });
 });
 
-// VALIDACIONES
-function validateField(idInput, idError, msg) {
-  const input = document.getElementById(idInput);
-  const error = document.getElementById(idError);
 
-  if (input.value.trim() === "") {
-    input.classList.add("input-error");
-    error.textContent = msg;
-    error.style.display = "block";
-    return false;
-  } else {
-    input.classList.remove("input-error");
-    error.style.display = "none";
-    return true;
-  }
+function showError(inputId, errorId) {
+  document.getElementById(inputId).classList.add("input-error");
+  document.getElementById(errorId).style.display = "block";
 }
 
-// ENVÍO FINAL
+function clearError(inputId, errorId) {
+  document.getElementById(inputId).classList.remove("input-error");
+  document.getElementById(errorId).style.display = "none";
+}
+
+document.getElementById("partnerInput").addEventListener("blur", () => {
+  if (partnerInput.value.trim() === "") showError("partnerInput", "error-partner");
+  else clearError("partnerInput", "error-partner");
+});
+
+document.getElementById("contactName").addEventListener("blur", () => {
+  const el = document.getElementById("contactName");
+  if (el.value.trim() === "") showError("contactName", "error-name");
+  else clearError("contactName", "error-name");
+});
+
+document.getElementById("phone").addEventListener("blur", () => {
+  const phone = document.getElementById("phone").value.trim();
+  if (!/^\d{8}$/.test(phone)) showError("phone", "error-phone");
+  else clearError("phone", "error-phone");
+});
+
+document.getElementById("reason").addEventListener("blur", () => {
+  const v = document.getElementById("reason").value;
+  if (v === "") showError("reason", "error-reason");
+  else clearError("reason", "error-reason");
+});
+
+/* Enviar formulario */
 function sendForm() {
   const partner = partnerInput.value.trim();
   const name = contactName.value.trim();
-  const phoneNum = phone.value.trim();
+  const phone = document.getElementById("phone").value.trim();
   const reason = document.getElementById("reason").value;
-  const comment = document.getElementById("comment").value;
+  const comment = document.getElementById("comment").value.trim();
 
-  const valid1 = validateField("partnerInput", "error-partner", "Agrega el nombre del local");
-  const valid2 = validateField("contactName", "error-name", "Agrega tu nombre");
-  const valid4 = validateField("reason", "error-reason", "Selecciona un motivo");
+  let ok = true;
 
-  if (!/^\d{8}$/.test(phoneNum)) {
-    phone.classList.add("input-error");
-    document.getElementById("error-phone").textContent = "Debe tener 8 dígitos numéricos";
-    document.getElementById("error-phone").style.display = "block";
-    return;
-  } else {
-    document.getElementById("error-phone").style.display = "none";
-  }
+  if (partner === "") { showError("partnerInput", "error-partner"); ok = false; }
+  if (name === "") { showError("contactName", "error-name"); ok = false; }
+  if (!/^\d{8}$/.test(phone)) { showError("phone", "error-phone"); ok = false; }
+  if (reason === "") { showError("reason", "error-reason"); ok = false; }
 
-  if (!valid1 || !valid2 || !valid4) {
+  if (!ok) {
     alert("Por favor completa los campos obligatorios.");
     return;
   }
@@ -278,16 +282,13 @@ function sendForm() {
   const payload = {
     partner_name: partner,
     contact_name: name,
-    phone: phoneNum,
+    phone: phone,
     reason: reason,
     comment: comment
   };
 
   fetch(SCRIPT_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json" 
-    },
     body: JSON.stringify(payload)
   })
     .then(res => res.json())
@@ -296,8 +297,8 @@ function sendForm() {
       location.reload();
     })
     .catch(err => {
-      console.error("ERROR:", err);
       alert("Ocurrió un error al enviar el formulario.");
+      console.log(err);
     });
 }
 </script>
