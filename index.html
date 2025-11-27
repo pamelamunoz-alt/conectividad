@@ -37,7 +37,7 @@
       width: 90%;
       max-width: 580px;
       margin-bottom: 50px;
-      padding: 35px 45px; 
+      padding: 35px 45px;
       border-radius: 14px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
       box-sizing: border-box;
@@ -57,9 +57,8 @@
       border: 1.5px solid #ddd;
       background: #fafafa;
       font-size: 15px;
-      font-family: "Poppins", sans-serif;
       margin-bottom: 8px;
-      box-sizing: border-box;  
+      box-sizing: border-box;
     }
 
     textarea {
@@ -69,15 +68,12 @@
 
     select {
       appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24'><path d='M7 10l5 5 5-5z'/></svg>");
       background-repeat: no-repeat;
       background-position: right 12px center;
       background-size: 20px;
     }
 
-    /* AUTOCOMPLETE */
     .autocomplete-wrapper {
       position: relative;
       width: 100%;
@@ -110,7 +106,6 @@
       background: #ffe3ef;
     }
 
-    /* Divider */
     .divider {
       width: 100%;
       height: 1px;
@@ -118,7 +113,6 @@
       margin: 18px 0;
     }
 
-    /* VALIDACIONES */
     .input-error {
       border: 1.8px solid #FA0050 !important;
       background: #ffe6ee !important;
@@ -154,9 +148,7 @@
 
 <body>
 
-  <!-- LOGO -->
   <img src="logo-blanco.png" class="logo">
-
   <h2>Formulario de Conectividad</h2>
 
   <div class="container">
@@ -196,16 +188,14 @@
   </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzhn8R1v0Uq20_bCet97csHYkWMC0hj0lqzcUXFBmwkG7VT-6GCTYguolwa2X2ptph9A/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9oXaXNX_nm48SY7tYW_gmcOpow53qwm7ZnVN7r3weP8eDoJhLV-McHJTm1b3CaMYchQ/exec";
 
-// Cargar partners
 let partners = [];
 
 fetch(`${SCRIPT_URL}?action=getPartners`)
   .then(res => res.json())
   .then(data => { partners = data.partners; });
 
-// Autocomplete
 const input = document.getElementById("partnerInput");
 const list = document.getElementById("autocomplete-list");
 
@@ -228,7 +218,7 @@ input.addEventListener("input", () => {
   });
 });
 
-// -------- VALIDACIONES EN TIEMPO REAL --------
+// VALIDACIONES
 function validateField(idInput, idError, message) {
   const input = document.getElementById(idInput);
   const error = document.getElementById(idError);
@@ -245,14 +235,6 @@ function validateField(idInput, idError, message) {
   }
 }
 
-document.getElementById("partnerInput").addEventListener("blur", () => {
-  validateField("partnerInput", "error-partner", "Agrega el nombre del local");
-});
-
-document.getElementById("contactName").addEventListener("blur", () => {
-  validateField("contactName", "error-name", "Agrega tu nombre");
-});
-
 document.getElementById("phone").addEventListener("blur", () => {
   if (!/^\d{8}$/.test(phone.value)) {
     phone.classList.add("input-error");
@@ -264,11 +246,7 @@ document.getElementById("phone").addEventListener("blur", () => {
   }
 });
 
-document.getElementById("reason").addEventListener("blur", () => {
-  validateField("reason", "error-reason", "Selecciona un motivo");
-});
-
-// -------- ENVÍO --------
+// ENVÍO
 function sendForm() {
   const partner = partnerInput.value.trim();
   const name = contactName.value.trim();
@@ -282,7 +260,6 @@ function sendForm() {
   const valid4 = validateField("reason", "error-reason", "Selecciona un motivo");
 
   if (!valid3) {
-    phone.classList.add("input-error");
     document.getElementById("error-phone").textContent = "Debe tener 8 dígitos numéricos";
     document.getElementById("error-phone").style.display = "block";
   }
@@ -310,8 +287,8 @@ function sendForm() {
       location.reload();
     })
     .catch(err => {
+      alert("Error al enviar el formulario.");
       console.error(err);
-      alert("Ocurrió un error al enviar el formulario.");
     });
 }
 </script>
