@@ -33,15 +33,16 @@
       font-size: 26px;
     }
 
+    /* CONTENEDOR */
     .container {
       background: white;
       width: 90%;
       max-width: 580px;
       margin-bottom: 50px;
-
-      padding: 35px;
+      padding: 35px 45px;  /* ← ESTE CAMBIO HACE QUE TODO QUEDE IGUALADO */
       border-radius: 14px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      box-sizing: border-box;
     }
 
     label {
@@ -60,6 +61,7 @@
       font-size: 15px;
       font-family: "Poppins", sans-serif;
       margin-bottom: 8px;
+      box-sizing: border-box;  /* ← asegura que todos los campos midan EXACTAMENTE igual */
     }
 
     textarea {
@@ -67,7 +69,7 @@
       resize: vertical;
     }
 
-    /* SELECT – quitar estilo del navegador */
+    /* SELECT – eliminar estilo nativo */
     select {
       appearance: none;
       -webkit-appearance: none;
@@ -150,13 +152,12 @@
     button:hover {
       background: #d80045;
     }
-
   </style>
 </head>
 
 <body>
 
-  <!-- LOGO BLANCO -->
+  <!-- LOGO -->
   <img src="logo-blanco.png" class="logo">
 
   <h2>Formulario de Conectividad</h2>
@@ -285,8 +286,8 @@ function sendForm() {
 
   if (!valid3) {
     phone.classList.add("input-error");
-    error-phone.textContent = "Debe tener 8 dígitos numéricos";
-    error-phone.style.display = "block";
+    document.getElementById("error-phone").textContent = "Debe tener 8 dígitos numéricos";
+    document.getElementById("error-phone").style.display = "block";
   }
 
   if (!valid1 || !valid2 || !valid3 || !valid4) {
