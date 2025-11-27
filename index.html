@@ -1,12 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Formulario de Conectectividad - PedidosYa</title>
+  <title>Formulario de Conectividad - PedidosYa</title>
+
+  <!-- Fuente Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       background: #f6f6f6;
       padding: 25px;
     }
@@ -15,6 +19,7 @@
       text-align: center;
       color: #FA0050;
       margin-bottom: 25px;
+      font-weight: 600;
     }
 
     .container {
@@ -28,12 +33,12 @@
     }
 
     label {
-      font-weight: bold;
+      font-weight: 500;
       margin-top: 10px;
       display: block;
     }
 
-    input, select {
+    input, select, textarea {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
@@ -41,6 +46,13 @@
       border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 15px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      max-height: 160px;
     }
 
     button {
@@ -53,32 +65,28 @@
       border-radius: 6px;
       cursor: pointer;
       margin-top: 10px;
+      font-weight: 500;
     }
 
     button:hover {
       background: #d80045;
     }
 
-    /* Wrapper para el autocomplete */
     .autocomplete-wrapper {
       position: relative;
       width: 100%;
     }
 
-    /* AUTOCOMPLETE */
     #autocomplete-list {
       position: absolute;
       top: 105%;
       left: 0;
       right: 0;
-
       background: white;
       border: 1px solid #ddd;
       border-radius: 6px;
-
       max-height: 140px;
       overflow-y: auto;
-
       box-shadow: 0 4px 10px rgba(0,0,0,0.08);
       z-index: 9999;
     }
@@ -87,8 +95,6 @@
       padding: 10px;
       cursor: pointer;
       font-size: 14px;
-      line-height: 1.2;
-
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -106,21 +112,20 @@
 
 <div class="container">
 
-  <label>Nombre del local</label>
-
+  <label>Nombre del local *</label>
   <div class="autocomplete-wrapper">
-    <input type="text" id="partnerInput" placeholder="Escribe el nombre del local...">
+    <input type="text" id="partnerInput" placeholder="Escribe el nombre del local..." required>
     <div id="autocomplete-list"></div>
   </div>
 
-  <label>Tu nombre</label>
-  <input type="text" id="contactName" placeholder="Escribe tu nombre">
+  <label>Tu nombre *</label>
+  <input type="text" id="contactName" placeholder="Escribe tu nombre" required>
 
-  <label>Teléfono</label>
-  <input type="text" id="phone" maxlength="8" placeholder="Escribe tu número de contacto">
+  <label>Teléfono *</label>
+  <input type="text" id="phone" maxlength="8" placeholder="Escribe tu número de contacto" required>
 
-  <label>Motivo de desconexión</label>
-  <select id="reason">
+  <label>Motivo de desconexión *</label>
+  <select id="reason" required>
     <option value="">Selecciona...</option>
     <option value="Desea darse de baja">Deseo darme de baja de la plataforma</option>
     <option value="Problemas con POS">Tengo problemas con el POS</option>
@@ -128,6 +133,9 @@
     <option value="Sin acceso al local">No tengo acceso al local</option>
     <option value="Otro">Otro motivo</option>
   </select>
+
+  <label>Comentario adicional (opcional)</label>
+  <textarea id="comments" placeholder="Escribe un comentario adicional..."></textarea>
 
   <button onclick="sendForm()">Enviar</button>
 
@@ -141,9 +149,7 @@ let partners = [];
 
 fetch(`${SCRIPT_URL}?action=getPartners`)
   .then(res => res.json())
-  .then(data => {
-    partners = data.partners;
-  });
+  .then(data => { partners = data.partners; });
 
 // 2. Autocomplete
 const input = document.getElementById("partnerInput");
@@ -152,30 +158,27 @@ const list = document.getElementById("autocomplete-list");
 input.addEventListener("input", function () {
   const val = this.value.toLowerCase();
   list.innerHTML = "";
-
   if (!val || val.length < 2) return;
-
   const filtered = partners.filter(p => p.toLowerCase().includes(val));
 
   filtered.slice(0, 12).forEach(p => {
     const div = document.createElement("div");
     div.textContent = p;
-
     div.onclick = () => {
       input.value = p;
       list.innerHTML = "";
     };
-
     list.appendChild(div);
   });
 });
 
-// 3. Validaciones + Envío formulario
+// 3. Validaciones + envío
 function sendForm() {
-  const partner = document.getElementById("partnerInput").value;
-  const contactName = document.getElementById("contactName").value;
-  const phone = document.getElementById("phone").value;
+  const partner = input.value.trim();
+  const contactName = document.getElementById("contactName").value.trim();
+  const phone = document.getElementById("phone").value.trim();
   const reason = document.getElementById("reason").value;
+  const comments = document.getElementById("comments").value;
 
   if (!partner || !contactName || !reason) {
     alert("Por favor completa todos los campos obligatorios.");
@@ -191,7 +194,8 @@ function sendForm() {
     partner_name: partner,
     contact_name: contactName,
     phone: phone,
-    reason: reason
+    reason: reason,
+    comments: comments
   };
 
   fetch(SCRIPT_URL, {
