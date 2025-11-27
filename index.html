@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Formulario de Conectectividad - PedidosYa</title>
+  <title>Formulario de Conectividad - PedidosYa</title>
 
   <style>
     body {
@@ -24,6 +24,7 @@
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.08);
+      position: relative;
     }
 
     label {
@@ -60,22 +61,35 @@
 
     /* AUTOCOMPLETE */
     #autocomplete-list {
-      border: 1px solid #ccc;
-      background: white;
       position: absolute;
-      width: calc(100% - 22px);
-      z-index: 9999;
-      max-height: 180px;
+      top: 100%;
+      left: 0;
+      right: 0;
+
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+
+      max-height: 140px;
       overflow-y: auto;
+
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      z-index: 9999;
     }
 
     #autocomplete-list div {
       padding: 10px;
       cursor: pointer;
+      font-size: 14px;
+      line-height: 1.2;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     #autocomplete-list div:hover {
-      background: #ffe0eb;
+      background: #ffe3ef;
     }
   </style>
 </head>
@@ -110,10 +124,13 @@
 
 </div>
 
+
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzhn8R1v0Uq20_bCet97csHYkWMC0hj0lqzcUXFBmwkG7VT-6GCTYguolwa2X2ptph9A/exec";
 
-// ==================================
+// ===============================
+// 1. Cargar partners
+// ===============================
 let partners = [];
 
 fetch(`${SCRIPT_URL}?action=getPartners`)
@@ -122,13 +139,13 @@ fetch(`${SCRIPT_URL}?action=getPartners`)
     partners = data.partners;
   });
 
-// ==================================
+// ===============================
 // 2. Autocomplete
-// ==================================
+// ===============================
 const input = document.getElementById("partnerInput");
 const list = document.getElementById("autocomplete-list");
 
-input.addEventListener("input", function() {
+input.addEventListener("input", function () {
   const val = this.value.toLowerCase();
   list.innerHTML = "";
 
@@ -139,17 +156,19 @@ input.addEventListener("input", function() {
   filtered.slice(0, 12).forEach(p => {
     const div = document.createElement("div");
     div.textContent = p;
+
     div.onclick = () => {
       input.value = p;
       list.innerHTML = "";
     };
+
     list.appendChild(div);
   });
 });
 
-// ==================================
+// ===============================
 // 3. Enviar formulario
-// ==================================
+// ===============================
 function sendForm() {
   const payload = {
     partner_name: document.getElementById("partnerInput").value,
@@ -167,15 +186,15 @@ function sendForm() {
     method: "POST",
     body: JSON.stringify(payload)
   })
-  .then(res => res.json())
-  .then(r => {
-    alert("¡Gracias! Tu información ha sido enviada correctamente.");
-    location.reload();
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Ocurrió un error al enviar el formulario.");
-  });
+    .then(res => res.json())
+    .then(() => {
+      alert("¡Gracias! Tu información ha sido enviada correctamente.");
+      location.reload();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Ocurrió un error al enviar el formulario.");
+    });
 }
 </script>
 
