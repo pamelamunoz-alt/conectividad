@@ -29,9 +29,9 @@
       margin: 20px 0 25px 0;
       font-weight: 600;
       font-size: 26px;
+      font-family: "Poppins", sans-serif;
     }
 
-    /* CONTENEDOR */
     .container {
       background: white;
       width: 90%;
@@ -41,13 +41,14 @@
       border-radius: 14px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
       box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
     }
 
     label {
       font-weight: 600;
-      display: block;
       margin-bottom: 6px;
-      margin-top: 10px;
+      display: block;
+      font-family: "Poppins", sans-serif;
     }
 
     input, select, textarea {
@@ -57,18 +58,19 @@
       border: 1.5px solid #ddd;
       background: #fafafa;
       font-size: 15px;
+      font-family: "Poppins", sans-serif;
       margin-bottom: 8px;
       box-sizing: border-box;
     }
 
     textarea {
-      height: 120px;
+      height: 80px !important;  
       resize: vertical;
     }
 
     select {
       appearance: none;
-      background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
       background-repeat: no-repeat;
       background-position: right 12px center;
       background-size: 20px;
@@ -91,12 +93,14 @@
       overflow-y: auto;
       box-shadow: 0 4px 10px rgba(0,0,0,0.08);
       z-index: 9999;
+      font-family: "Poppins", sans-serif;
     }
 
     #autocomplete-list div {
       padding: 10px;
       cursor: pointer;
       font-size: 14px;
+      font-family: "Poppins", sans-serif;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -121,23 +125,25 @@
     .error-text {
       color: #FA0050;
       font-size: 13px;
+      display: none;
       margin-top: -5px;
       margin-bottom: 10px;
-      display: none;
+      font-family: "Poppins", sans-serif;
     }
 
     button {
       width: 100%;
       background: #FA0050;
-      color: white;
-      font-size: 17px;
       border: none;
       padding: 14px;
       border-radius: 8px;
-      cursor: pointer;
-      margin-top: 20px;
-      transition: 0.2s;
+      color: white;
+      font-size: 17px;
       font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s;
+      margin-top: 20px;
+      font-family: "Poppins", sans-serif;
     }
 
     button:hover {
@@ -149,6 +155,7 @@
 <body>
 
   <img src="logo-blanco.png" class="logo">
+
   <h2>Formulario de Conectividad</h2>
 
   <div class="container">
@@ -202,23 +209,22 @@ const list = document.getElementById("autocomplete-list");
 input.addEventListener("input", () => {
   const val = input.value.toLowerCase();
   list.innerHTML = "";
-
   if (!val || val.length < 2) return;
 
-  const filtered = partners.filter(p => p.toLowerCase().includes(val));
-
-  filtered.slice(0, 12).forEach(p => {
-    const div = document.createElement("div");
-    div.textContent = p;
-    div.onclick = () => {
-      input.value = p;
-      list.innerHTML = "";
-    };
-    list.appendChild(div);
-  });
+  partners
+    .filter(p => p.toLowerCase().includes(val))
+    .slice(0, 12)
+    .forEach(p => {
+      const div = document.createElement("div");
+      div.textContent = p;
+      div.onclick = () => {
+        input.value = p;
+        list.innerHTML = "";
+      };
+      list.appendChild(div);
+    });
 });
 
-// VALIDACIONES
 function validateField(idInput, idError, message) {
   const input = document.getElementById(idInput);
   const error = document.getElementById(idError);
@@ -228,13 +234,18 @@ function validateField(idInput, idError, message) {
     error.textContent = message;
     error.style.display = "block";
     return false;
-  } else {
-    input.classList.remove("input-error");
-    error.style.display = "none";
-    return true;
   }
+  input.classList.remove("input-error");
+  error.style.display = "none";
+  return true;
 }
 
+document.getElementById("partnerInput").addEventListener("blur", () => {
+  validateField("partnerInput", "error-partner", "Agrega el nombre del local");
+});
+document.getElementById("contactName").addEventListener("blur", () => {
+  validateField("contactName", "error-name", "Agrega tu nombre");
+});
 document.getElementById("phone").addEventListener("blur", () => {
   if (!/^\d{8}$/.test(phone.value)) {
     phone.classList.add("input-error");
@@ -245,8 +256,10 @@ document.getElementById("phone").addEventListener("blur", () => {
     document.getElementById("error-phone").style.display = "none";
   }
 });
+document.getElementById("reason").addEventListener("blur", () => {
+  validateField("reason", "error-reason", "Selecciona un motivo");
+});
 
-// ENVÍO
 function sendForm() {
   const partner = partnerInput.value.trim();
   const name = contactName.value.trim();
@@ -259,12 +272,12 @@ function sendForm() {
   const valid3 = /^\d{8}$/.test(phoneNum);
   const valid4 = validateField("reason", "error-reason", "Selecciona un motivo");
 
-  if (!valid3) {
-    document.getElementById("error-phone").textContent = "Debe tener 8 dígitos numéricos";
-    document.getElementById("error-phone").style.display = "block";
-  }
-
   if (!valid1 || !valid2 || !valid3 || !valid4) {
+    if (!valid3) {
+      phone.classList.add("input-error");
+      document.getElementById("error-phone").textContent = "Debe tener 8 dígitos numéricos";
+      document.getElementById("error-phone").style.display = "block";
+    }
     alert("Por favor completa los campos obligatorios.");
     return;
   }
@@ -279,6 +292,7 @@ function sendForm() {
 
   fetch(SCRIPT_URL, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   })
     .then(res => res.json())
@@ -286,10 +300,7 @@ function sendForm() {
       alert("¡Gracias! Tu información ha sido enviada correctamente.");
       location.reload();
     })
-    .catch(err => {
-      alert("Error al enviar el formulario.");
-      console.error(err);
-    });
+    .catch(() => alert("Ocurrió un error al enviar el formulario."));
 }
 </script>
 
