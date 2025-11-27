@@ -59,10 +59,16 @@
       background: #d80045;
     }
 
+    /* Wrapper para el autocomplete */
+    .autocomplete-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
     /* AUTOCOMPLETE */
     #autocomplete-list {
       position: absolute;
-      top: 100%;
+      top: 105%; /* justo debajo del input */
       left: 0;
       right: 0;
 
@@ -101,8 +107,11 @@
 <div class="container">
 
   <label>Nombre del local</label>
-  <input type="text" id="partnerInput" placeholder="Escribe el nombre del local...">
-  <div id="autocomplete-list"></div>
+
+  <div class="autocomplete-wrapper">
+    <input type="text" id="partnerInput" placeholder="Escribe el nombre del local...">
+    <div id="autocomplete-list"></div>
+  </div>
 
   <label>Tu nombre</label>
   <input type="text" id="contactName" placeholder="Escribe tu nombre">
