@@ -62,8 +62,9 @@
     }
 
     textarea {
-      height: 95px; 
+      height: 85px;
       resize: vertical;
+      font-family: "Poppins", sans-serif;
     }
 
     select {
@@ -140,11 +141,19 @@
       margin-top: 22px;
       transition: 0.2s;
       font-weight: 600;
-      font-family: "Poppins", sans-serif;
     }
 
     button:hover {
       background: #d80045;
+    }
+
+    #statusMessage {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: 500;
+      display: none;
+      font-family: "Poppins", sans-serif;
     }
   </style>
 </head>
@@ -189,6 +198,10 @@
     <textarea id="comment" placeholder="Escribe un comentario adicional..."></textarea>
 
     <button onclick="sendForm()">Enviar</button>
+
+    <!-- MENSAJE DINÁMICO -->
+    <div id="statusMessage"></div>
+
   </div>
 
 <script>
@@ -225,7 +238,7 @@ partnerInput.addEventListener("input", () => {
     });
 });
 
-
+/* VALIDACIONES */
 function showError(inputId, errorId) {
   document.getElementById(inputId).classList.add("input-error");
   document.getElementById(errorId).style.display = "block";
@@ -237,35 +250,40 @@ function clearError(inputId, errorId) {
 }
 
 document.getElementById("partnerInput").addEventListener("blur", () => {
-  if (partnerInput.value.trim() === "") showError("partnerInput", "error-partner");
-  else clearError("partnerInput", "error-partner");
+  partnerInput.value.trim() === ""
+    ? showError("partnerInput", "error-partner")
+    : clearError("partnerInput", "error-partner");
 });
 
 document.getElementById("contactName").addEventListener("blur", () => {
   const el = document.getElementById("contactName");
-  if (el.value.trim() === "") showError("contactName", "error-name");
-  else clearError("contactName", "error-name");
+  el.value.trim() === ""
+    ? showError("contactName", "error-name")
+    : clearError("contactName", "error-name");
 });
 
 document.getElementById("phone").addEventListener("blur", () => {
-  const phone = document.getElementById("phone").value.trim();
-  if (!/^\d{8}$/.test(phone)) showError("phone", "error-phone");
-  else clearError("phone", "error-phone");
+  const phoneVal = document.getElementById("phone").value.trim();
+  !/^\d{8}$/.test(phoneVal)
+    ? showError("phone", "error-phone")
+    : clearError("phone", "error-phone");
 });
 
 document.getElementById("reason").addEventListener("blur", () => {
-  const v = document.getElementById("reason").value;
-  if (v === "") showError("reason", "error-reason");
-  else clearError("reason", "error-reason");
+  const val = document.getElementById("reason").value;
+  val === ""
+    ? showError("reason", "error-reason")
+    : clearError("reason", "error-reason");
 });
 
-/* Enviar formulario */
+/* ENVIAR FORMULARIO */
 function sendForm() {
   const partner = partnerInput.value.trim();
   const name = contactName.value.trim();
   const phone = document.getElementById("phone").value.trim();
   const reason = document.getElementById("reason").value;
   const comment = document.getElementById("comment").value.trim();
+  const status = document.getElementById("statusMessage");
 
   let ok = true;
 
@@ -274,10 +292,12 @@ function sendForm() {
   if (!/^\d{8}$/.test(phone)) { showError("phone", "error-phone"); ok = false; }
   if (reason === "") { showError("reason", "error-reason"); ok = false; }
 
-  if (!ok) {
-    alert("Por favor completa los campos obligatorios.");
-    return;
-  }
+  if (!ok) return;
+
+  /* MENSAJE DE ESPERA */
+  status.style.display = "block";
+  status.style.color = "#61C8FA";
+  status.innerText = "Enviando tus datos, espera un momento...";
 
   const payload = {
     partner_name: partner,
@@ -293,11 +313,18 @@ function sendForm() {
   })
     .then(res => res.json())
     .then(() => {
-      alert("¡Gracias! Tu información ha sido enviada correctamente.");
-      location.reload();
+      status.style.color = "#1DBF73";
+      status.innerText = "¡Gracias! Tu información ha sido enviada correctamente.";
+
+      partnerInput.value = "";
+      contactName.value = "";
+      phone.value = "";
+      reason.value = "";
+      comment.value = "";
     })
     .catch(err => {
-      alert("Ocurrió un error al enviar el formulario.");
+      status.style.color = "#FA0050";
+      status.innerText = "Ocurrió un error al enviar el formulario.";
       console.log(err);
     });
 }
