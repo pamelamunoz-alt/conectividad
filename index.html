@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Formulario de Conectividad - PedidosYa</title>
+  <title>Formulario de Conectectividad - PedidosYa</title>
 
   <style>
     body {
@@ -68,7 +68,7 @@
     /* AUTOCOMPLETE */
     #autocomplete-list {
       position: absolute;
-      top: 105%; /* justo debajo del input */
+      top: 105%;
       left: 0;
       right: 0;
 
@@ -117,7 +117,7 @@
   <input type="text" id="contactName" placeholder="Escribe tu nombre">
 
   <label>Teléfono</label>
-  <input type="text" id="phone" placeholder="Escribe tu número de contacto">
+  <input type="text" id="phone" maxlength="8" placeholder="Escribe tu número de contacto">
 
   <label>Motivo de desconexión</label>
   <select id="reason">
@@ -133,13 +133,10 @@
 
 </div>
 
-
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzhn8R1v0Uq20_bCet97csHYkWMC0hj0lqzcUXFBmwkG7VT-6GCTYguolwa2X2ptph9A/exec";
 
-// ===============================
 // 1. Cargar partners
-// ===============================
 let partners = [];
 
 fetch(`${SCRIPT_URL}?action=getPartners`)
@@ -148,9 +145,7 @@ fetch(`${SCRIPT_URL}?action=getPartners`)
     partners = data.partners;
   });
 
-// ===============================
 // 2. Autocomplete
-// ===============================
 const input = document.getElementById("partnerInput");
 const list = document.getElementById("autocomplete-list");
 
@@ -175,21 +170,29 @@ input.addEventListener("input", function () {
   });
 });
 
-// ===============================
-// 3. Enviar formulario
-// ===============================
+// 3. Validaciones + Envío formulario
 function sendForm() {
-  const payload = {
-    partner_name: document.getElementById("partnerInput").value,
-    contact_name: document.getElementById("contactName").value,
-    phone: document.getElementById("phone").value,
-    reason: document.getElementById("reason").value
-  };
+  const partner = document.getElementById("partnerInput").value;
+  const contactName = document.getElementById("contactName").value;
+  const phone = document.getElementById("phone").value;
+  const reason = document.getElementById("reason").value;
 
-  if (!payload.partner_name || !payload.reason || !payload.contact_name) {
+  if (!partner || !contactName || !reason) {
     alert("Por favor completa todos los campos obligatorios.");
     return;
   }
+
+  if (!/^\d{8}$/.test(phone)) {
+    alert("El número de teléfono debe tener exactamente 8 dígitos numéricos.");
+    return;
+  }
+
+  const payload = {
+    partner_name: partner,
+    contact_name: contactName,
+    phone: phone,
+    reason: reason
+  };
 
   fetch(SCRIPT_URL, {
     method: "POST",
