@@ -166,6 +166,7 @@
 
   <div class="container">
 
+    <!-- PARTNER -->
     <label>Nombre del local *</label>
     <div class="autocomplete-wrapper">
       <input type="text" id="partnerInput" placeholder="Escribe el nombre del local...">
@@ -188,18 +189,34 @@
       <option value="">Selecciona...</option>
       <option value="Desea darse de baja">Deseo darme de baja de la plataforma</option>
       <option value="Problemas con POS">Mi POS no tiene conexión a internet</option>
-      <option value="Problemas de internet">Mi POS presenta problemas técnicos </option>
-      <option value="Sin acceso al local">Olvide conectarme</option>
+      <option value="Problemas de internet">Mi POS presenta problemas técnicos</option>
+      <option value="Sin acceso al local">Olvidé conectarme</option>
       <option value="Otro">Otro motivo</option>
     </select>
     <div class="error-text" id="error-reason">Selecciona un motivo</div>
+
+    <!-- NUEVAS PREGUNTAS -->
+    <label>¿Tienes contacto de tu asesor comercial? *</label>
+    <select id="hasAdvisor">
+      <option value="">Selecciona...</option>
+      <option value="Sí">Sí</option>
+      <option value="No">No</option>
+    </select>
+    <div class="error-text" id="error-hasAdvisor">Selecciona una opción</div>
+
+    <label>¿Te gustaría ser contactado por tu asesor comercial? *</label>
+    <select id="wantsContact">
+      <option value="">Selecciona...</option>
+      <option value="Sí">Sí</option>
+      <option value="No">No</option>
+    </select>
+    <div class="error-text" id="error-wantsContact">Selecciona una opción</div>
 
     <label>Comentario adicional (opcional)</label>
     <textarea id="comment" placeholder="Escribe un comentario adicional..."></textarea>
 
     <button onclick="sendForm()">Enviar</button>
 
-    <!-- MENSAJE DINÁMICO -->
     <div id="statusMessage"></div>
 
   </div>
@@ -207,7 +224,6 @@
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbtORCprcx4JcRhN0rKxcCBvAtnREj2CpdzWvwZ4ilBo6lf0PR9GOAOpWJMkAJHLq_uQ/exec";
 
-/* CARGA DE PARTNERS */
 let partners = [];
 
 fetch(`${SCRIPT_URL}?action=getPartners`)
@@ -249,31 +265,16 @@ function clearError(inputId, errorId) {
   document.getElementById(errorId).style.display = "none";
 }
 
-document.getElementById("partnerInput").addEventListener("blur", () => {
-  partnerInput.value.trim() === ""
-    ? showError("partnerInput", "error-partner")
-    : clearError("partnerInput", "error-partner");
-});
-
-document.getElementById("contactName").addEventListener("blur", () => {
-  const el = document.getElementById("contactName");
-  el.value.trim() === ""
-    ? showError("contactName", "error-name")
-    : clearError("contactName", "error-name");
-});
-
-document.getElementById("phone").addEventListener("blur", () => {
-  const phoneVal = document.getElementById("phone").value.trim();
-  !/^\d{8}$/.test(phoneVal)
-    ? showError("phone", "error-phone")
-    : clearError("phone", "error-phone");
-});
-
-document.getElementById("reason").addEventListener("blur", () => {
-  const val = document.getElementById("reason").value;
-  val === ""
-    ? showError("reason", "error-reason")
-    : clearError("reason", "error-reason");
+["partnerInput","contactName","phone","reason","hasAdvisor","wantsContact"].forEach(id => {
+  document.getElementById(id).addEventListener("blur", () => {
+    const el = document.getElementById(id);
+    const errorId = "error-" + id;
+    if (id === "phone") {
+      !/^\d{8}$/.test(el.value.trim()) ? showError(id, errorId) : clearError(id, errorId);
+    } else {
+      el.value.trim() === "" ? showError(id, errorId) : clearError(id, errorId);
+    }
+  });
 });
 
 /* ENVIAR FORMULARIO */
@@ -282,19 +283,22 @@ function sendForm() {
   const name = contactName.value.trim();
   const phone = document.getElementById("phone").value.trim();
   const reason = document.getElementById("reason").value;
+  const hasAdvisor = document.getElementById("hasAdvisor").value;
+  const wantsContact = document.getElementById("wantsContact").value;
   const comment = document.getElementById("comment").value.trim();
   const status = document.getElementById("statusMessage");
 
   let ok = true;
 
-  if (partner === "") { showError("partnerInput", "error-partner"); ok = false; }
-  if (name === "") { showError("contactName", "error-name"); ok = false; }
-  if (!/^\d{8}$/.test(phone)) { showError("phone", "error-phone"); ok = false; }
-  if (reason === "") { showError("reason", "error-reason"); ok = false; }
+  if (!partner) { showError("partnerInput","error-partner"); ok=false; }
+  if (!name) { showError("contactName","error-name"); ok=false; }
+  if (!/^\d{8}$/.test(phone)) { showError("phone","error-phone"); ok=false; }
+  if (!reason) { showError("reason","error-reason"); ok=false; }
+  if (!hasAdvisor) { showError("hasAdvisor","error-hasAdvisor"); ok=false; }
+  if (!wantsContact) { showError("wantsContact","error-wantsContact"); ok=false; }
 
   if (!ok) return;
 
-  /* MENSAJE DE ESPERA */
   status.style.display = "block";
   status.style.color = "#61C8FA";
   status.innerText = "Enviando tus datos, espera un momento...";
@@ -304,6 +308,8 @@ function sendForm() {
     contact_name: name,
     phone: phone,
     reason: reason,
+    has_advisor: hasAdvisor,
+    wants_contact: wantsContact,
     comment: comment
   };
 
@@ -320,6 +326,8 @@ function sendForm() {
       contactName.value = "";
       phone.value = "";
       reason.value = "";
+      hasAdvisor.value = "";
+      wantsContact.value = "";
       comment.value = "";
     })
     .catch(err => {
