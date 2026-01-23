@@ -64,7 +64,6 @@
     textarea {
       height: 85px;
       resize: vertical;
-      font-family: "Poppins", sans-serif;
     }
 
     select {
@@ -101,7 +100,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-family: "Poppins", sans-serif;
     }
 
     #autocomplete-list div:hover {
@@ -123,10 +121,8 @@
     .error-text {
       color: #FA0050;
       font-size: 13px;
-      margin-top: -2px;
       margin-bottom: 8px;
       display: none;
-      font-family: "Poppins", sans-serif;
     }
 
     button {
@@ -139,7 +135,6 @@
       border-radius: 8px;
       cursor: pointer;
       margin-top: 22px;
-      transition: 0.2s;
       font-weight: 600;
     }
 
@@ -153,7 +148,6 @@
       font-size: 15px;
       font-weight: 500;
       display: none;
-      font-family: "Poppins", sans-serif;
     }
   </style>
 </head>
@@ -161,7 +155,6 @@
 <body>
 
   <img src="logo-blanco.png" class="logo">
-
   <h2>Formulario de Conectividad</h2>
 
   <div class="container">
@@ -172,13 +165,13 @@
       <input type="text" id="partnerInput" placeholder="Escribe el nombre del local...">
       <div id="autocomplete-list"></div>
     </div>
-    <div class="error-text" id="error-partner">Agrega el nombre del local</div>
+    <div class="error-text" id="error-partnerInput">Agrega el nombre del local</div>
 
     <div class="divider"></div>
 
     <label>Tu nombre *</label>
     <input type="text" id="contactName" placeholder="Escribe tu nombre">
-    <div class="error-text" id="error-name">Agrega tu nombre</div>
+    <div class="error-text" id="error-contactName">Agrega tu nombre</div>
 
     <label>Teléfono *</label>
     <input type="text" id="phone" maxlength="8" placeholder="Escribe tu número de contacto">
@@ -196,7 +189,6 @@
     </select>
     <div class="error-text" id="error-reason">Selecciona un motivo</div>
 
-    <!-- NUEVAS PREGUNTAS -->
     <label>¿Tienes contacto de tu asesor comercial? *</label>
     <select id="hasAdvisor">
       <option value="">Selecciona...</option>
@@ -213,23 +205,30 @@
     </select>
     <div class="error-text" id="error-wantsContact">Selecciona una opción</div>
 
+    <label>¿Podemos visitarte del 27 al 29 de enero? *</label>
+    <select id="visitAvailability">
+      <option value="">Selecciona...</option>
+      <option value="Sí">Sí</option>
+      <option value="No">No</option>
+    </select>
+    <div class="error-text" id="error-visitAvailability">Selecciona una opción</div>
+
     <label>Comentario adicional (opcional)</label>
     <textarea id="comment" placeholder="Escribe un comentario adicional..."></textarea>
 
     <button onclick="sendForm()">Enviar</button>
-
     <div id="statusMessage"></div>
 
   </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzEEZvsu_X-XhnRME37VnsD8TiGc67Pm-65uh0-gJXSWcpUOFQVN3d2Bus6Sh7Mug1j3w/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSgpVhFyu6A-zbCqZY5c22qwSt5ELQvwAA_rDqHYf7uiVzt1z0P257Iex3NIoA7Agl7g/exec";
 
 let partners = [];
 
 fetch(`${SCRIPT_URL}?action=getPartners`)
   .then(res => res.json())
-  .then(data => partners = data.partners);
+  .then(data => partners = data.partners || []);
 
 const partnerInput = document.getElementById("partnerInput");
 const list = document.getElementById("autocomplete-list");
@@ -237,25 +236,20 @@ const list = document.getElementById("autocomplete-list");
 partnerInput.addEventListener("input", () => {
   const val = partnerInput.value.toLowerCase();
   list.innerHTML = "";
-
   if (!val || val.length < 2) return;
 
-  partners
-    .filter(p => p.toLowerCase().includes(val))
-    .slice(0, 12)
-    .forEach(p => {
-      const div = document.createElement("div");
-      div.textContent = p;
-      div.onclick = () => {
-        partnerInput.value = p;
-        clearError("partnerInput", "error-partner");
-        list.innerHTML = "";
-      };
-      list.appendChild(div);
-    });
+  partners.filter(p => p.toLowerCase().includes(val)).slice(0,12).forEach(p => {
+    const div = document.createElement("div");
+    div.textContent = p;
+    div.onclick = () => {
+      partnerInput.value = p;
+      clearError("partnerInput","error-partnerInput");
+      list.innerHTML = "";
+    };
+    list.appendChild(div);
+  });
 });
 
-/* VALIDACIONES */
 function showError(inputId, errorId) {
   document.getElementById(inputId).classList.add("input-error");
   document.getElementById(errorId).style.display = "block";
@@ -266,76 +260,56 @@ function clearError(inputId, errorId) {
   document.getElementById(errorId).style.display = "none";
 }
 
-["partnerInput","contactName","phone","reason","hasAdvisor","wantsContact"].forEach(id => {
-  document.getElementById(id).addEventListener("blur", () => {
-    const el = document.getElementById(id);
-    const errorId = "error-" + id;
-    if (id === "phone") {
-      !/^\d{8}$/.test(el.value.trim()) ? showError(id, errorId) : clearError(id, errorId);
-    } else {
-      el.value.trim() === "" ? showError(id, errorId) : clearError(id, errorId);
-    }
-  });
-});
-
-/* ENVIAR FORMULARIO */
 function sendForm() {
-  const partner = partnerInput.value.trim();
-  const name = contactName.value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const reason = document.getElementById("reason").value;
-  const hasAdvisor = document.getElementById("hasAdvisor").value;
-  const wantsContact = document.getElementById("wantsContact").value;
-  const comment = document.getElementById("comment").value.trim();
-  const status = document.getElementById("statusMessage");
+  const data = {
+    partner_name: partnerInput.value.trim(),
+    contact_name: contactName.value.trim(),
+    phone: phone.value.trim(),
+    reason: reason.value,
+    has_advisor: hasAdvisor.value,
+    wants_contact: wantsContact.value,
+    visit_availability: visitAvailability.value,
+    comment: comment.value.trim()
+  };
 
   let ok = true;
 
-  if (!partner) { showError("partnerInput","error-partner"); ok=false; }
-  if (!name) { showError("contactName","error-name"); ok=false; }
-  if (!/^\d{8}$/.test(phone)) { showError("phone","error-phone"); ok=false; }
-  if (!reason) { showError("reason","error-reason"); ok=false; }
-  if (!hasAdvisor) { showError("hasAdvisor","error-hasAdvisor"); ok=false; }
-  if (!wantsContact) { showError("wantsContact","error-wantsContact"); ok=false; }
+  if (!data.partner_name) { showError("partnerInput","error-partnerInput"); ok=false; }
+  if (!data.contact_name) { showError("contactName","error-contactName"); ok=false; }
+  if (!/^\d{8}$/.test(data.phone)) { showError("phone","error-phone"); ok=false; }
+  if (!data.reason) { showError("reason","error-reason"); ok=false; }
+  if (!data.has_advisor) { showError("hasAdvisor","error-hasAdvisor"); ok=false; }
+  if (!data.wants_contact) { showError("wantsContact","error-wantsContact"); ok=false; }
+  if (!data.visit_availability) { showError("visitAvailability","error-visitAvailability"); ok=false; }
 
   if (!ok) return;
 
-  status.style.display = "block";
-  status.style.color = "#61C8FA";
-  status.innerText = "Enviando tus datos, espera un momento...";
-
-  const payload = {
-    partner_name: partner,
-    contact_name: name,
-    phone: phone,
-    reason: reason,
-    has_advisor: hasAdvisor,
-    wants_contact: wantsContact,
-    comment: comment
-  };
+  statusMessage.style.display = "block";
+  statusMessage.style.color = "#61C8FA";
+  statusMessage.innerText = "Enviando tus datos, espera un momento...";
 
   fetch(SCRIPT_URL, {
     method: "POST",
-    body: JSON.stringify(payload)
+    body: JSON.stringify(data)
   })
-    .then(res => res.json())
-    .then(() => {
-      status.style.color = "#1DBF73";
-      status.innerText = "¡Gracias! Tu información ha sido enviada correctamente.";
+  .then(res => res.json())
+  .then(() => {
+    statusMessage.style.color = "#1DBF73";
+    statusMessage.innerText = "¡Gracias! Tu información ha sido enviada correctamente.";
 
-      partnerInput.value = "";
-      contactName.value = "";
-      phone.value = "";
-      reason.value = "";
-      hasAdvisor.value = "";
-      wantsContact.value = "";
-      comment.value = "";
-    })
-    .catch(err => {
-      status.style.color = "#FA0050";
-      status.innerText = "Ocurrió un error al enviar el formulario.";
-      console.log(err);
-    });
+    partnerInput.value = "";
+    contactName.value = "";
+    phone.value = "";
+    reason.value = "";
+    hasAdvisor.value = "";
+    wantsContact.value = "";
+    visitAvailability.value = "";
+    comment.value = "";
+  })
+  .catch(() => {
+    statusMessage.style.color = "#FA0050";
+    statusMessage.innerText = "Ocurrió un error al enviar el formulario.";
+  });
 }
 </script>
 
